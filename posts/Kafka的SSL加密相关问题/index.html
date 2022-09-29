@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="pv-cache-enabled" content="false">
+<meta name="generator" content="Jekyll v4.2.0">
+<meta property="og:title" content="Kafka的SSL加密相关问题">
+<meta name="author" content="LanXuage">
+<meta property="og:locale" content="zh_CN">
+<meta name="description" content="kafka使用ssl双向认证来进行集群之间包括客户端与服务端之间的通信认证，ssl双向验证可以很好的防止中间人攻击。">
+<meta property="og:description" content="kafka使用ssl双向认证来进行集群之间包括客户端与服务端之间的通信认证，ssl双向验证可以很好的防止中间人攻击。">
+<link rel="canonical" href="/posts/Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/">
+<meta property="og:url" content="/posts/Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/">
+<meta property="og:site_name" content="LanXuage">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2022-08-03T12:20:07+08:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="Kafka的SSL加密相关问题">
+<meta name="twitter:site" content="@LanXuage">
+<meta name="twitter:creator" content="@LanXuage">
+<meta name="google-site-verification" content="google_meta_tag_verification"> <script type="application/ld+json"> {"author":{"@type":"Person","name":"LanXuage"},"description":"kafka使用ssl双向认证来进行集群之间包括客户端与服务端之间的通信认证，ssl双向验证可以很好的防止中间人攻击。","headline":"Kafka的SSL加密相关问题","dateModified":"2022-08-24T21:47:19+08:00","datePublished":"2022-08-03T12:20:07+08:00","url":"/posts/Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/posts/Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/"},"@context":"https://schema.org"}</script><title>Kafka的SSL加密相关问题 | LanXuage</title>
+<link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png">
+<link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png">
+<link rel="manifest" href="/assets/img/favicons/manifest.json">
+<meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials">
+<link rel="dns-prefetch" href="https://www.google-analytics.com">
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous">
+<link rel="dns-prefetch" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="cdn.jsdelivr.net">
+<link rel="dns-prefetch" href="cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/dist/post.min.js"></script> <script defer src="/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id="></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', ''); }); </script>
+</head>
+<body data-spy="scroll" data-target="#toc">
+<div id="sidebar" class="d-flex flex-column align-items-end">
+<div class="profile-wrapper text-center">
+<div id="avatar"> <a href="/" alt="avatar" class="mx-auto"> <img src="/assets/image/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a>
+</div>
+<div class="site-title mt-3"> <a href="/">LanXuage</a>
+</div>
+<div class="site-subtitle font-italic">Bad times make a good man.</div>
+</div>
+<ul class="w-100">
+<li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a>
+</li>
+<li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a>
+</li>
+<li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a>
+</li>
+<li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a>
+</li>
+<li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a>
+</li>
+</ul>
+<div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/LanXuage" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/LanXuage" aria-label="twitter" class="order-4" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="javascript:location.href%20=%20'mailto:'%20+%20%5B'zx1456817554','gmail.com'%5D.join('@')" aria-label="email" class="order-5"> <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" class="order-6"> <i class="fas fa-rss"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span>
+</div>
+</div>
+<div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> Posts </a> </span> <span>Kafka的SSL加密相关问题</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div>
+<i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel">Cancel</span>
+</div></div>
+<div id="main-wrapper">
+<div id="main">
+<div class="row">
+<div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4">
+<h1 data-toc-skip>Kafka的SSL加密相关问题</h1>
+<div class="post-meta text-muted d-flex flex-column">
+<div> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Wed, Aug 3, 2022, 12:20 PM +0800"> Aug 3 <i class="unloaded">2022-08-03T12:20:07+08:00</i> </span> by <span class="author"> LanXuage </span>
+</div>
+<div> <span> Updated <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Wed, Aug 24, 2022, 9:47 PM +0800"> Aug 24 <i class="unloaded">2022-08-24T21:47:19+08:00</i> </span> </span> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="1668 words">9 min</span>
+</div>
+</div>
+<div class="post-content">
+<p>kafka使用<code class="language-plaintext highlighter-rouge">ssl双向认证</code>来进行集群之间包括客户端与服务端之间的通信认证，<code class="language-plaintext highlighter-rouge">ssl</code>双向验证可以很好的防止中间人攻击。</p>
+<h2 id="一ssl证书合法性校验">一、<code class="language-plaintext highlighter-rouge">ssl</code>证书合法性校验</h2>
+<p>在<code class="language-plaintext highlighter-rouge">CA</code>认证体系中，所有的证书都是由权威机构来颁发的。<code class="language-plaintext highlighter-rouge">CA</code>根证书的主要来源有两种：操作系统内置和浏览器自带。具体的证书申请验证过程如下：</p>
+<p>1、证书签名</p>
+<p>服务提供者（证书申请者）自己生成一个密钥对，然后将生成的公钥（私钥无需提交）加上组织和个人等信息提交给权威<code class="language-plaintext highlighter-rouge">CA</code>机构，权威<code class="language-plaintext highlighter-rouge">CA</code>机构审核通过后，它会先使用散列函数计算公开的明文的信息摘要，然后用它的<code class="language-plaintext highlighter-rouge">CA</code>私钥对信息摘要进行加密，加密生成的密文为签名密文。</p>
+<p>2、证书合法性验证</p>
+<p>一般<code class="language-plaintext highlighter-rouge">ssl</code>请求时，服务端在接收到客户端第一次请求后会返回它的证书文件，该证书文件中包含公钥、服务提供者的组织和个人信息、签发<code class="language-plaintext highlighter-rouge">CA</code>机构的信息，证书有效时间和证书序列号等信息明文，同时包含一个签名密文。客户端接收到证书文件后会读取证书中包含的明文信息，然后使用约定的散列函数计算明文的信息摘要，然后根据签发<code class="language-plaintext highlighter-rouge">CA</code>机构的信息从操作系统中或浏览器中获取该机构的CA公钥来解密签名密文得到签发机构计算明文的信息摘要，对比两个明文的信息摘要，一致为证书合法，不一致则证书不合法。</p>
+<h2 id="二ssl双向认证">二、<code class="language-plaintext highlighter-rouge">ssl</code>双向认证</h2>
+<p>具体通信认证过程如下：</p>
+<p><img class="plantuml" src="http://www.plantuml.com/plantuml/svg/~h407374617274756d6c0a6175746f6e756d6265720a436c69656e74202d3e20536572766572203a20e58f91e8b5b74854545053e5bbbae7ab8be8bf9ee68ea5e8afb7e6b1820a536572766572202d3e20436c69656e74203a20e8bf94e59b9ee58c85e590abe69c8de58aa1e7abafe585ace992a5e5928ce79bb8e585b3e6988ee69687e4bfa1e681afe79a84e8af81e4b9a6287365727665722e637274290a436c69656e74202d3e20436c69656e74203a20e8a7a3e5af86e8af81e4b9a6e7adbee5908de5af86e69687e9aa8ce8af81e8af81e4b9a6e59088e6b395e680a7e5b9b6e68f90e58f96e8af81e4b9a6e585ace992a50a436c69656e74202d3e20536572766572203a20e5b086e58c85e590abe5aea2e688b7e7abafe585ace992a5e5928ce79bb8e585b3e6988ee69687e4bfa1e681afe79a84e8af81e4b9a628636c69656e742e63727429e58f91e98081e7bb99e69c8de58aa1e7abaf0a536572766572203c2d20536572766572203a20e8a7a3e5af86e8af81e4b9a6e7adbee5908de5af86e69687e9aa8ce8af81e8af81e4b9a6e59088e6b395e680a7e5b9b6e68f90e58f96e8af81e4b9a6e585ace992a50a436c69656e74202d3e20536572766572203a20e58f91e98081e887aae5b7b1e694afe68c81e79a84e58aa0e5af86e696b9e6a188e7bb99e69c8de58aa1e7abaf0a536572766572202d3e20436c69656e74203a20e4bdbfe794a8e5aea2e688b7e7abafe8af81e4b9a6e585ace992a5e58aa0e5af86e9809ae4bfa1e58aa0e5af86e696b9e6a188e7bb99e5aea2e688b7e7abaf0a436c69656e74202d3e20536572766572203a20e4bdbfe794a8e5aea2e688b7e7abafe7a781e992a5e8a7a3e5af86e9809ae4bfa1e58aa0e5af86e696b9e6a188efbc8ce4baa7e7949fe99a8fe69cbae695b0e5b9b6e4bdbfe794a8e69c8de58aa1e7abafe585ace992a5e58aa0e5af86e5908ee58f91e7bb99e69c8de58aa1e7abaf0a436c69656e74203c2d3e20536572766572203a20e58f8ce696b9e4bdbfe794a8e99a8fe69cbae695b052e4bd9ce4b8bae5af86e992a5e8bf9be8a18c4854545053e9809ae4bfa10a40656e64756d6c"></p>
+<p>1、客户端发起建立<code class="language-plaintext highlighter-rouge">HTTPS</code>连接请求，将<code class="language-plaintext highlighter-rouge">SSL</code>协议版本的信息发送给服务端；</p>
+<p>2、服务器端将本机的公钥证书（<code class="language-plaintext highlighter-rouge">server.crt</code>）发送给客户端；</p>
+<p>3、客户端读取公钥证书（<code class="language-plaintext highlighter-rouge">server.crt</code>），取出了服务端公钥；</p>
+<p>4、客户端将客户端公钥证书（<code class="language-plaintext highlighter-rouge">client.crt</code>）发送给服务器端；</p>
+<p>5、服务器端使用根证书（<code class="language-plaintext highlighter-rouge">root.crt</code>）解密客户端公钥证书，拿到客户端公钥；</p>
+<p>6、客户端发送自己支持的加密方案给服务器端；</p>
+<p>7、服务器端根据自己和客户端的能力，选择一个双方都能接受的加密方案，使用客户端的公钥加密后发送给客户端；</p>
+<p>8、客户端使用自己的私钥解密加密方案，生成一个随机数<code class="language-plaintext highlighter-rouge">R</code>，使用服务器公钥加密后传给服务器端；</p>
+<p>9、服务端用自己的私钥去解密这个密文，得到了密钥<code class="language-plaintext highlighter-rouge">R</code></p>
+<p>10、服务端和客户端在后续通讯过程中就使用这个密钥R进行通信了。</p>
+<h2 id="三kafka的ssl双向加密证书生成过程">三、<code class="language-plaintext highlighter-rouge">kafka</code>的<code class="language-plaintext highlighter-rouge">ssl</code>双向加密证书生成过程</h2>
+<h3 id="31生成脚本参考">3.1、生成脚本参考</h3>
+<ul>
+<li>https://raw.githubusercontent.com/confluentinc/confluent-platform-security-tools/master/kafka-generate-ssl.sh</li>
+<li>https://github.com/aio-libs/aiokafka/blob/master/gen-ssl-certs.sh</li>
+</ul>
+<h3 id="32具体过程">3.2、具体过程</h3>
+<p>一般情况下，是不会有人会掏钱去权威<code class="language-plaintext highlighter-rouge">CA</code>机构申请权威签名证书给<code class="language-plaintext highlighter-rouge">kafka</code>集群和客户端使用的，因为<code class="language-plaintext highlighter-rouge">kafka</code>本身是自用的。所以大部分情况是采用自签名的。自签名证书的具体流程为：</p>
+<p>1、生成自己的根证书和信任证书库。</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td>
+<td class="rouge-code"><pre><span class="c"># 生成自己的根证书</span>
+openssl req <span class="nt">-new</span> <span class="nt">-x509</span> <span class="nt">-keyout</span> ca-key <span class="nt">-out</span> ca-cert <span class="nt">-days</span> 3650
+
+<span class="c"># 生成信任证书库，并导入自己的根证书</span>
+keytool <span class="nt">-keystore</span> truststore.keystore.jks <span class="nt">-alias</span> CARoot <span class="nt">-import</span> <span class="nt">-file</span> ca-cert
+</pre></td>
+</tr></tbody></table></code></div></div>
+<p>2、生成自签名服务端证书和密钥</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td>
+<td class="rouge-code"><pre><span class="c"># 生成密钥对并存储到密钥库中</span>
+keytool <span class="nt">-keystore</span> server.keystore.jks <span class="nt">-alias</span> localhost <span class="nt">-validity</span> 3650 <span class="nt">-genkey</span> <span class="nt">-keyalg</span> RSA
+
+<span class="c"># 从密钥库中导出前面生成的密钥对的公钥</span>
+keytool <span class="nt">-keystore</span> server.keystore.jks <span class="nt">-alias</span> localhost <span class="nt">-certreq</span> <span class="nt">-file</span> cert-server
+
+<span class="c"># 使用自己的根证书对导出的公钥进行签名</span>
+openssl x509 <span class="nt">-req</span> <span class="nt">-CA</span> ca-cert <span class="nt">-CAkey</span> ca-key <span class="nt">-in</span> cert-server <span class="nt">-out</span> cert-server-signed <span class="nt">-days</span> 3650 <span class="nt">-CAcreateserial</span>
+
+<span class="c"># 将自己的根证书公钥导入之前的密钥库中</span>
+keytool <span class="nt">-keystore</span> server.keystore.jks <span class="nt">-alias</span> CARoot <span class="nt">-import</span> <span class="nt">-file</span> ca-cert
+
+<span class="c"># 将使用自己的根证书签名好的服务端公钥证书重新导回密钥库中</span>
+keytool <span class="nt">-keystore</span> server.keystore.jks <span class="nt">-alisa</span> localhost <span class="nt">-import</span> <span class="nt">-file</span> cert-server-signed
+</pre></td>
+</tr></tbody></table></code></div></div>
+<p>3、生成自签名客户端证书和密钥（同服务端的生成一致）</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre></td>
+<td class="rouge-code"><pre><span class="c"># 生成密钥对并存储到密钥库中</span>
+keytool <span class="nt">-keystore</span> client.keystore.jks <span class="nt">-alias</span> localhost <span class="nt">-validity</span> 3650 <span class="nt">-genkey</span> <span class="nt">-keyalg</span> RSA
+
+<span class="c"># 从密钥库中导出前面生成的密钥对的公钥</span>
+keytool <span class="nt">-keystore</span> client.keystore.jks <span class="nt">-alias</span> localhost <span class="nt">-certreq</span> <span class="nt">-file</span> cert-client
+
+<span class="c"># 使用自己的根证书对导出的公钥进行签名</span>
+openssl x509 <span class="nt">-req</span> <span class="nt">-CA</span> ca-cert <span class="nt">-CAkey</span> ca-key <span class="nt">-in</span> cert-client <span class="nt">-out</span> cert-client-signed <span class="nt">-days</span> 3650 <span class="nt">-CAcreateserial</span>
+
+<span class="c"># 将自己的根证书公钥导入之前的密钥库中</span>
+keytool <span class="nt">-keystore</span> client.keystore.jks <span class="nt">-alias</span> CARoot <span class="nt">-import</span> <span class="nt">-file</span> ca-cert
+
+<span class="c"># 将使用自己的根证书签名好的客户端公钥证书重新导回密钥库中</span>
+keytool <span class="nt">-keystore</span> client.keystore.jks <span class="nt">-alias</span> localhost <span class="nt">-import</span> <span class="nt">-file</span> cert-client-signed
+</pre></td>
+</tr></tbody></table></code></div></div>
+<p>4、（可选）生成pem文件（python kafka客户端可用）</p>
+<p>pem文件一种容器文件格式，通常用于存储密钥。也就是能用来存储客户端进行ssl连接所需要的所有密钥。一般我们客户端进行ssl单向验证的话只需要CA的公钥，但是Kafka使用的是ssl双向验证，所以客户端就不仅仅只需要CA的公钥，同时还要有服务端信任的CA签名的公钥以及该公钥的私钥。而刚好这些在第三步时都已经全部生成并存储到client.keystore.jks中，所以我们完全可以从client.keystore.jks中提取到我们需要的pem格式的所有密钥文件用于客户端的ssl双向连接使用。具体流程如下：</p>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre></td>
+<td class="rouge-code"><pre><span class="c"># 提取CA公钥</span>
+keytool <span class="nt">-keystore</span> client.keystore.jks <span class="nt">-exportcert</span> <span class="nt">-alias</span> CARoot <span class="nt">-rfc</span> <span class="nt">-file</span> caroot.pem
+
+<span class="c"># 提取证书公钥</span>
+keytool <span class="nt">-keystore</span> client.keystore.jks <span class="nt">-exportcert</span> <span class="nt">-alias</span> localhost <span class="nt">-rfc</span> <span class="nt">-file</span> cert.pem
+
+<span class="c"># 提取证书私钥（两步）</span>
+
+<span class="c">## 将keystore转成p12格式的证书库</span>
+keytool <span class="nt">-v</span> <span class="nt">-importkeystore</span> <span class="nt">-srckeystore</span> client.keystore.jks <span class="nt">-srcalias</span> localhost <span class="nt">-destkeystore</span> cert_and_key.p12 <span class="nt">-deststoretype</span> PKCS12
+
+<span class="c">## 打印未加密的私钥，复制控制台的私钥输出并保存到文件key.pem</span>
+openssl pkcs12 <span class="nt">-in</span> cert_and_key.p12 <span class="nt">-nocerts</span> <span class="nt">-nodes</span>
+</pre></td>
+</tr></tbody></table></code></div></div>
+<h2 id="四kafka配置开启ssl">四、<code class="language-plaintext highlighter-rouge">Kafka</code>配置开启<code class="language-plaintext highlighter-rouge">ssl</code>
+</h2>
+<h3 id="41参看配置项详解">4.1、参看配置项详解</h3>
+<ul><li>https://docs.confluent.io/platform/current/installation/configuration/broker-configs.html</li></ul>
+</div>
+<div class="post-tail-wrapper text-muted">
+<div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href="/categories/kafka/">KAFKA</a>
+</div>
+<div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/kafka/" class="post-tag no-text-decoration">KAFKA</a> <a href="/tags/python/" class="post-tag no-text-decoration">python</a> <a href="/tags/ssl%E5%8F%8C%E5%90%91%E5%8A%A0%E5%AF%86/" class="post-tag no-text-decoration">ssl双向加密</a> <a href="/tags/pem/" class="post-tag no-text-decoration">pem</a>
+</div>
+<div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2">
+<div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div>
+<div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%20-%20LanXuage&url=/posts/Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%20-%20LanXuage&u=/posts/Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%20-%20LanXuage&url=/posts/Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span>
+</div>
+</div>
+</div>
+</div></div>
+<div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down">
+<div class="access">
+<div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2">
+<li><a href="/posts/nasm%E5%AD%A6%E4%B9%A0%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/">nasm学习汇编语言</a></li>
+<li><a href="/posts/Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/">Kafka的SSL加密相关问题</a></li>
+</ul>
+</div>
+<div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/adworld/">adworld</a> <a class="post-tag" href="/tags/ctf/">CTF</a> <a class="post-tag" href="/tags/reverse/">reverse</a> <a class="post-tag" href="/tags/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C/">攻防世界</a> <a class="post-tag" href="/tags/android-studio/">Android Studio</a> <a class="post-tag" href="/tags/xposed/">Xposed</a> <a class="post-tag" href="/tags/android/">Android</a> <a class="post-tag" href="/tags/containerd/">containerd</a> <a class="post-tag" href="/tags/dma/">DMA</a> <a class="post-tag" href="/tags/docker/">docker</a>
+</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">Contents</span><nav id="toc" data-toggle="toc"></nav>
+</div>
+</div>
+</div>
+<div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4">
+<div id="related-posts" class="mt-5 mb-2 mb-sm-4">
+<h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3>
+<div class="card-deck mb-4">
+<div class="card"> <a href="/posts/Kubernetes(K8s)%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/"><div class="card-body"> <span class="timeago small"> Sep 29 <i class="unloaded">2022-09-29T09:48:48+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Kubernetes(K8s)集群搭建</h3>
+<div class="text-muted small"><p> 节点硬件配置要求 不能使用交换分区: swapoff /path/to/endpoint 物理内存不能少于1700M（除去系统占用，建议设置为2G）: free -m CPU核心数不能少于2: lscpu 部署过程 1、确保每个节点上 MAC 地址和 product_uuid 的唯一性 1 2 3 4 5 6 # 查看 MAC 地址 ip link ifconfig ...</p></div>
+</div></a>
+</div>
+<div class="card"> <a href="/posts/%E9%9D%92%E8%97%A4%E4%BA%91%E5%AE%89%E5%85%A8/"><div class="card-body"> <span class="timeago small"> Sep 5 <i class="unloaded">2022-09-05T17:49:23+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>青藤云安全</h3>
+<div class="text-muted small"><p> # 自适应安全框架(ASA, Adaptive SecurityArchitecture) 是Gartner于2014年提出的面向下一代的安全体系架构, 以应对云大无移智时代所面临的安全形势。</p></div>
+</div></a>
+</div>
+<div class="card"> <a href="/posts/%E9%9B%B6%E6%8B%B7%E8%B4%9D%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/"><div class="card-body"> <span class="timeago small"> Aug 3 <i class="unloaded">2022-08-03T16:32:03+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>零拷贝相关问题</h3>
+<div class="text-muted small"><p> 一、基础知识 物理内存：内存条。 虚拟内存：通过内存管理技术实现的一段连续完整的虚拟内存地址空间，可能实际在物理内存上的存储是碎片化分散的。 用户空间：系统划分给每个进程运行的虚拟内存地址空间范围，每个进程独享，进程间隔离，32位和64位范围不同，一般与内核空间成3:1的比例。 内核空间：系统划分给自身内核运行的虚拟内存地址空间范围，系统内核独享，进程间共享。 系统调...</p></div>
+</div></a>
+</div>
+</div>
+</div>
+<div class="post-navigation d-flex justify-content-between"> <a href="/posts/Python2_%E7%AE%80%E5%8D%95%E5%AD%97%E8%8A%82%E7%A0%81%E6%B7%B7%E6%B7%86/" class="btn btn-outline-primary" prompt="Older"><p>Python2 简单字节码混淆</p></a> <a href="/posts/%E9%9B%B6%E6%8B%B7%E8%B4%9D%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/" class="btn btn-outline-primary" prompt="Newer"><p>零拷贝相关问题</p></a>
+</div>
+</div></div></div>
+<footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center">
+<div class="footer-left"><p class="mb-0"> © 2022 <a href="https://twitter.com/LanXuage">LanXuage</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div>
+<div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div>
+</div></footer>
+</div>
+<div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content">
+<div id="search-hints">
+<h4 class="text-muted mb-4">Trending Tags</h4>
+<a class="post-tag" href="/tags/adworld/">adworld</a> <a class="post-tag" href="/tags/ctf/">CTF</a> <a class="post-tag" href="/tags/reverse/">reverse</a> <a class="post-tag" href="/tags/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C/">攻防世界</a> <a class="post-tag" href="/tags/android-studio/">Android Studio</a> <a class="post-tag" href="/tags/xposed/">Xposed</a> <a class="post-tag" href="/tags/android/">Android</a> <a class="post-tag" href="/tags/containerd/">containerd</a> <a class="post-tag" href="/tags/dma/">DMA</a> <a class="post-tag" href="/tags/docker/">docker</a>
+</div>
+<div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div>
+</div></div>
+</div>
+<div id="mask"></div>
+<a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>
+</body>
+</html>

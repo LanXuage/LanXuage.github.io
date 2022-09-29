@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="pv-cache-enabled" content="false">
+<meta name="generator" content="Jekyll v4.2.0">
+<meta property="og:title" content="Docker 搭建 PbootCMS 内容管理网站">
+<meta name="author" content="LanXuage">
+<meta property="og:locale" content="zh_CN">
+<meta name="description" content="Docker拉取需要用到的镜像">
+<meta property="og:description" content="Docker拉取需要用到的镜像">
+<link rel="canonical" href="/posts/Docker%E6%90%AD%E5%BB%BAPbootCMS%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99/">
+<meta property="og:url" content="/posts/Docker%E6%90%AD%E5%BB%BAPbootCMS%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99/">
+<meta property="og:site_name" content="LanXuage">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2020-08-09T10:31:41+08:00">
+<meta name="twitter:card" content="summary">
+<meta property="twitter:title" content="Docker 搭建 PbootCMS 内容管理网站">
+<meta name="twitter:site" content="@LanXuage">
+<meta name="twitter:creator" content="@LanXuage">
+<meta name="google-site-verification" content="google_meta_tag_verification"> <script type="application/ld+json"> {"author":{"@type":"Person","name":"LanXuage"},"description":"Docker拉取需要用到的镜像","headline":"Docker 搭建 PbootCMS 内容管理网站","dateModified":"2020-08-09T10:31:41+08:00","datePublished":"2020-08-09T10:31:41+08:00","url":"/posts/Docker%E6%90%AD%E5%BB%BAPbootCMS%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99/","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"/posts/Docker%E6%90%AD%E5%BB%BAPbootCMS%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99/"},"@context":"https://schema.org"}</script><title>Docker 搭建 PbootCMS 内容管理网站 | LanXuage</title>
+<link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon">
+<link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png">
+<link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png">
+<link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png">
+<link rel="manifest" href="/assets/img/favicons/manifest.json">
+<meta name="msapplication-config" content="/assets/img/favicons/browserconfig.xml">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link rel="dns-prefetch" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://www.google-analytics.com" crossorigin="use-credentials">
+<link rel="dns-prefetch" href="https://www.google-analytics.com">
+<link rel="preconnect" href="https://www.googletagmanager.com" crossorigin="anonymous">
+<link rel="dns-prefetch" href="https://www.googletagmanager.com">
+<link rel="preconnect" href="cdn.jsdelivr.net">
+<link rel="dns-prefetch" href="cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous">
+<link rel="stylesheet" href="/assets/css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.css"> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/dist/post.min.js"></script> <script defer src="/app.js"></script> <script defer src="https://www.googletagmanager.com/gtag/js?id="></script> <script> document.addEventListener("DOMContentLoaded", function(event) { window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', ''); }); </script>
+</head>
+<body data-spy="scroll" data-target="#toc">
+<div id="sidebar" class="d-flex flex-column align-items-end">
+<div class="profile-wrapper text-center">
+<div id="avatar"> <a href="/" alt="avatar" class="mx-auto"> <img src="/assets/image/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a>
+</div>
+<div class="site-title mt-3"> <a href="/">LanXuage</a>
+</div>
+<div class="site-subtitle font-italic">Bad times make a good man.</div>
+</div>
+<ul class="w-100">
+<li class="nav-item"> <a href="/" class="nav-link"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>HOME</span> </a>
+</li>
+<li class="nav-item"> <a href="/categories/" class="nav-link"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>CATEGORIES</span> </a>
+</li>
+<li class="nav-item"> <a href="/tags/" class="nav-link"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>TAGS</span> </a>
+</li>
+<li class="nav-item"> <a href="/archives/" class="nav-link"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>ARCHIVES</span> </a>
+</li>
+<li class="nav-item"> <a href="/about/" class="nav-link"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>ABOUT</span> </a>
+</li>
+</ul>
+<div class="sidebar-bottom mt-auto d-flex flex-wrap justify-content-center"> <a href="https://github.com/LanXuage" aria-label="github" class="order-3" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/LanXuage" aria-label="twitter" class="order-4" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="javascript:location.href%20=%20'mailto:'%20+%20%5B'zx1456817554','gmail.com'%5D.join('@')" aria-label="email" class="order-5"> <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" class="order-6"> <i class="fas fa-rss"></i> </a> <span class="icon-border order-2"></span> <span id="mode-toggle-wrapper" class="order-1"> <i class="mode-toggle fas fa-adjust"></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.hasMode) { if (this.isDarkMode) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.hasMode) { if (self.isDarkMode) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } self.updateMermaid(); }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } /* get the current mode on screen */ get modeStatus() { if (this.isDarkMode || (!this.hasMode && this.isSysDarkPrefer) ) { return ModeToggle.DARK_MODE; } else { return ModeToggle.LIGHT_MODE; } } updateMermaid() { if (typeof mermaid !== "undefined") { let expectedTheme = (this.modeStatus === ModeToggle.DARK_MODE? "dark" : "default"); let config = { theme: expectedTheme }; /* re-render the SVG › <https://github.com/mermaid-js/mermaid/issues/311#issuecomment-332557344> */ $(".mermaid").each(function() { let svgCode = $(this).prev().children().html(); $(this).removeAttr("data-processed"); $(this).html(svgCode); }); mermaid.initialize(config); mermaid.init(undefined, ".mermaid"); } } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateMermaid(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span>
+</div>
+</div>
+<div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> Posts </a> </span> <span>Docker 搭建 PbootCMS 内容管理网站</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div>
+<i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="Search..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel">Cancel</span>
+</div></div>
+<div id="main-wrapper">
+<div id="main">
+<div class="row">
+<div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4">
+<h1 data-toc-skip>Docker 搭建 PbootCMS 内容管理网站</h1>
+<div class="post-meta text-muted d-flex flex-column">
+<div> <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Sun, Aug 9, 2020, 10:31 AM +0800"> Aug 9, 2020 <i class="unloaded">2020-08-09T10:31:41+08:00</i> </span> by <span class="author"> LanXuage </span>
+</div>
+<div> <span class="readtime" data-toggle="tooltip" data-placement="bottom" title="233 words">1 min</span>
+</div>
+</div>
+<div class="post-content">
+<h2 id="docker拉取需要用到的镜像">Docker拉取需要用到的镜像</h2>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td>
+<td class="rouge-code"><pre>docker pull eboraas/apache-php
+</pre></td>
+</tr></tbody></table></code></div></div>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td>
+<td class="rouge-code"><pre>docker pull mysql
+</pre></td>
+</tr></tbody></table></code></div></div>
+<h2 id="克隆项目到本地">克隆项目到本地</h2>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td>
+<td class="rouge-code"><pre>git clone https://gitee.com/hnaoyun/PbootCMS.git
+</pre></td>
+</tr></tbody></table></code></div></div>
+<h2 id="启动一个-eboraasapache-php-容器">启动一个 eboraas/apache-php 容器</h2>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+</pre></td>
+<td class="rouge-code"><pre>docker run <span class="nt">--name</span> site <span class="nt">-d</span> <span class="nt">-p</span> 8080:80 <span class="nt">-p</span> 8443:443 <span class="nt">-v</span> /path/to/PbootCMS:/var/www/html eboraas/apache-php
+</pre></td>
+</tr></tbody></table></code></div></div>
+<h2 id="进入容器安装php拓展">进入容器安装php拓展</h2>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td>
+<td class="rouge-code"><pre><span class="c"># 进入容器</span>
+docker <span class="nb">exec</span> <span class="nt">-it</span> site bash
+<span class="c"># 接下来的代码在容器中执行。</span>
+<span class="c"># 更换国内镜像源（可选）</span>
+<span class="nb">sed</span> <span class="nt">-i</span> <span class="s1">'s/deb.debain.org/mirrors.aliyun.com/g'</span> /etc/apt/sources.list
+<span class="c"># 更新仓库和安装包信息</span>
+apt update
+<span class="c"># 安装所需拓展</span>
+apt <span class="nb">install </span>php-gd php-mbstring php-curl php-sqlite3
+</pre></td>
+</tr></tbody></table></code></div></div>
+<h2 id="重启容器激活服务">重启容器激活服务</h2>
+<ul><li>重启容器以生效拓展</li></ul>
+<div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr>
+<td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td>
+<td class="rouge-code"><pre><span class="c"># 重启容器</span>
+docker restart site
+<span class="c"># 查看容器</span>
+docker ps
+</pre></td>
+</tr></tbody></table></code></div></div>
+<ul><li>激活 PbootCMS</li></ul>
+<p>在 <code class="language-plaintext highlighter-rouge">PbootCMS</code> 官网获取免费授权码，访问自己网站的<code class="language-plaintext highlighter-rouge">admin.php</code> ，输入默认用户名 <code class="language-plaintext highlighter-rouge">admin</code> 密码 <code class="language-plaintext highlighter-rouge">123456</code>。进入【全局配置】-》【配置参数】输入授权码即可正常开始使用服务。</p>
+</div>
+<div class="post-tail-wrapper text-muted">
+<div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>
+</div>
+<div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/docker/" class="post-tag no-text-decoration">docker</a> <a href="/tags/pbootcms/" class="post-tag no-text-decoration">pbootcms</a>
+</div>
+<div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2">
+<div class="license-wrapper"> This post is licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> by the author.</div>
+<div class="share-wrapper"> <span class="share-label text-muted mr-1">Share</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Docker%20%E6%90%AD%E5%BB%BA%20PbootCMS%20%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99%20-%20LanXuage&url=/posts/Docker%E6%90%AD%E5%BB%BAPbootCMS%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Docker%20%E6%90%AD%E5%BB%BA%20PbootCMS%20%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99%20-%20LanXuage&u=/posts/Docker%E6%90%AD%E5%BB%BAPbootCMS%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Docker%20%E6%90%AD%E5%BB%BA%20PbootCMS%20%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99%20-%20LanXuage&url=/posts/Docker%E6%90%AD%E5%BB%BAPbootCMS%E5%86%85%E5%AE%B9%E7%AE%A1%E7%90%86%E7%BD%91%E7%AB%99/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span>
+</div>
+</div>
+</div>
+</div></div>
+<div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down">
+<div class="access">
+<div id="access-lastmod" class="post"> <span>Recent Update</span><ul class="post-content pl-0 pb-1 ml-1 mt-2">
+<li><a href="/posts/nasm%E5%AD%A6%E4%B9%A0%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80/">nasm学习汇编语言</a></li>
+<li><a href="/posts/Kafka%E7%9A%84SSL%E5%8A%A0%E5%AF%86%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/">Kafka的SSL加密相关问题</a></li>
+</ul>
+</div>
+<div id="access-tags"> <span>Trending Tags</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/adworld/">adworld</a> <a class="post-tag" href="/tags/ctf/">CTF</a> <a class="post-tag" href="/tags/reverse/">reverse</a> <a class="post-tag" href="/tags/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C/">攻防世界</a> <a class="post-tag" href="/tags/android-studio/">Android Studio</a> <a class="post-tag" href="/tags/xposed/">Xposed</a> <a class="post-tag" href="/tags/android/">Android</a> <a class="post-tag" href="/tags/containerd/">containerd</a> <a class="post-tag" href="/tags/dma/">DMA</a> <a class="post-tag" href="/tags/docker/">docker</a>
+</div>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@1.0.1/dist/bootstrap-toc.min.js"></script><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">Contents</span><nav id="toc" data-toggle="toc"></nav>
+</div>
+</div>
+</div>
+<div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4">
+<div id="related-posts" class="mt-5 mb-2 mb-sm-4">
+<h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>Further Reading</h3>
+<div class="card-deck mb-4">
+<div class="card"> <a href="/posts/Kubernetes(K8s)%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/"><div class="card-body"> <span class="timeago small"> Sep 29 <i class="unloaded">2022-09-29T09:48:48+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Kubernetes(K8s)集群搭建</h3>
+<div class="text-muted small"><p> 节点硬件配置要求 不能使用交换分区: swapoff /path/to/endpoint 物理内存不能少于1700M（除去系统占用，建议设置为2G）: free -m CPU核心数不能少于2: lscpu 部署过程 1、确保每个节点上 MAC 地址和 product_uuid 的唯一性 1 2 3 4 5 6 # 查看 MAC 地址 ip link ifconfig ...</p></div>
+</div></a>
+</div>
+<div class="card"> <a href="/posts/%E9%9D%92%E8%97%A4%E4%BA%91%E5%AE%89%E5%85%A8/"><div class="card-body"> <span class="timeago small"> Sep 5 <i class="unloaded">2022-09-05T17:49:23+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>青藤云安全</h3>
+<div class="text-muted small"><p> # 自适应安全框架(ASA, Adaptive SecurityArchitecture) 是Gartner于2014年提出的面向下一代的安全体系架构, 以应对云大无移智时代所面临的安全形势。</p></div>
+</div></a>
+</div>
+<div class="card"> <a href="/posts/%E9%9B%B6%E6%8B%B7%E8%B4%9D%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98/"><div class="card-body"> <span class="timeago small"> Aug 3 <i class="unloaded">2022-08-03T16:32:03+08:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>零拷贝相关问题</h3>
+<div class="text-muted small"><p> 一、基础知识 物理内存：内存条。 虚拟内存：通过内存管理技术实现的一段连续完整的虚拟内存地址空间，可能实际在物理内存上的存储是碎片化分散的。 用户空间：系统划分给每个进程运行的虚拟内存地址空间范围，每个进程独享，进程间隔离，32位和64位范围不同，一般与内核空间成3:1的比例。 内核空间：系统划分给自身内核运行的虚拟内存地址空间范围，系统内核独享，进程间共享。 系统调...</p></div>
+</div></a>
+</div>
+</div>
+</div>
+<div class="post-navigation d-flex justify-content-between"> <a href="/posts/pwndbg_pwntools%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA_Unix%E7%B3%BB%E7%BB%9F_/" class="btn btn-outline-primary" prompt="Older"><p>pwndbg、pwntools环境搭建（Unix系统）</p></a> <a href="/posts/vscode%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91/" class="btn btn-outline-primary" prompt="Newer"><p>VScode 插件开发</p></a>
+</div>
+</div></div></div>
+<footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center">
+<div class="footer-left"><p class="mb-0"> © 2022 <a href="https://twitter.com/LanXuage">LanXuage</a>. <span data-toggle="tooltip" data-placement="top" title="Except where otherwise noted, the blog posts on this site are licensed under the Creative Commons Attribution 4.0 International (CC BY 4.0) License by the author.">Some rights reserved.</span></p></div>
+<div class="footer-right"><p class="mb-0"> Powered by <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> with <a href="https://github.com/cotes2020/jekyll-theme-chirpy" target="_blank" rel="noopener">Chirpy</a> theme.</p></div>
+</div></footer>
+</div>
+<div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-sm-11 post-content">
+<div id="search-hints">
+<h4 class="text-muted mb-4">Trending Tags</h4>
+<a class="post-tag" href="/tags/adworld/">adworld</a> <a class="post-tag" href="/tags/ctf/">CTF</a> <a class="post-tag" href="/tags/reverse/">reverse</a> <a class="post-tag" href="/tags/%E6%94%BB%E9%98%B2%E4%B8%96%E7%95%8C/">攻防世界</a> <a class="post-tag" href="/tags/android-studio/">Android Studio</a> <a class="post-tag" href="/tags/xposed/">Xposed</a> <a class="post-tag" href="/tags/android/">Android</a> <a class="post-tag" href="/tags/containerd/">containerd</a> <a class="post-tag" href="/tags/dma/">DMA</a> <a class="post-tag" href="/tags/docker/">docker</a>
+</div>
+<div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div>
+</div></div>
+</div>
+<div id="mask"></div>
+<a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"> {categories} {tags}</div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>', templateMiddleware: function(prop, value, template) { if (prop === 'categories') { if (value === '') { return `${value}`; } else { return `<div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>${value}</div>`; } } if (prop === 'tags') { if (value === '') { return `${value}`; } else { return `<div><i class="fa fa-tag fa-fw"></i>${value}</div>`; } } } }); </script>
+</body>
+</html>
